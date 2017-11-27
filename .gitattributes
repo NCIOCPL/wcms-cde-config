@@ -1,0 +1,2 @@
+# Explicitly declare use of CR/LF.
+* text eol=crlf
