@@ -58,7 +58,7 @@
   <Target Name="Upload" DependsOnTargets="ValidateProps">
   	  <Message Text="Creating tag $(BuildName)." />
   	  <Exec Command="git tag $(BuildName) $(COMMIT_ID)" />
-  	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -artifactDirectory &quot;$(TempBase)&quot; -artifactFileName &quot;$(BuildName).zip&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
+  	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
 
       <Message Text="Creating $(TempBase)\$(BuildName).zip from $(StagingLocation)" />
       <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\create-zip.ps1 -sourcePath &quot;$(StagingLocation)\*&quot;  -destinationPath &quot;$(TempBase)\$(BuildName).zip&quot;" />
@@ -99,23 +99,29 @@
 
   <!-- This target validates properties that are expected to be passed into msbuild -->
   <Target Name="ValidateProps">
-	<Error Condition=" '$(TargetEnvironment)'=='' "
-          Text=" Missing required property [TargetEnvironment]" />
+    <Error Condition=" '$(TargetEnvironment)'=='' "
+            Text=" Missing required property [TargetEnvironment]" />
 
-	<Error Condition=" '$(Branch)'=='' "
-          Text=" Missing required property [Branch]" />
+    <Error Condition=" '$(Branch)'=='' "
+            Text=" Missing required property [Branch]" />
 
-	<Error Condition=" '$(COMMIT_ID)'=='' "
-          Text=" Missing required property [COMMIT_ID]" />
+    <Error Condition=" '$(COMMIT_ID)'=='' "
+            Text=" Missing required property [COMMIT_ID]" />
 
-	<Error Condition=" '$(GITHUB_TOKEN)'=='' "
-          Text=" Missing required property [GITHUB_TOKEN]" />
+    <Error Condition=" '$(GITHUB_TOKEN)'=='' "
+            Text=" Missing required property [GITHUB_TOKEN]" />
 
-	<Error Condition=" '$(BUILD_NUMBER)'=='' "
-          Text=" Missing required property [BUILD_NUMBER]" />
+    <Error Condition=" '$(BUILD_NUMBER)'=='' "
+            Text=" Missing required property [BUILD_NUMBER]" />
 
-	<Error Condition=" '$(SUBSTITUTION_FILE)'=='' "
-          Text=" Missing required property [SUBSTITUTION_FILE]" />
+    <Error Condition=" '$(SUBSTITUTION_FILE)'=='' "
+            Text=" Missing required property [SUBSTITUTION_FILE]" />
+
+    <Error Condition=" '$(GH_ORGANIZATION_NAME)'=='' "
+            Text=" Missing required property [GH_ORGANIZATION_NAME]" />
+
+    <Error Condition=" '$(GH_REPO_NAME)'=='' "
+            Text=" Missing required property [GH_REPO_NAME]" />
 
   <!-- We need some sort of Nexus token/login -->
 
