@@ -8,6 +8,12 @@
 	.PARAMETER Filename
 	The file to be uploaded. Required.
 
+	.PARAMETER RemoteFilename
+	The file name to use on the remote server.  If not set, Filename is copied.
+
+	.PARAMETER LocalDir
+	The local directory where the file is located. If not set, the current directory is assumed.
+
 	.PARAMETER UserID
 	The Nexus user's ID. Required.
 
@@ -19,6 +25,12 @@ Param(
 	[Parameter(mandatory=$true, ValueFromPipeline=$false)]
 	[string]$Filename,
 
+	[Parameter(mandatory=$false, ValueFromPipeline=$false)]
+	[string]$RemoteFilename,
+
+	[Parameter(mandatory=$false, ValueFromPipeline=$false)]
+	[string]$LocalDir,
+
 	[Parameter(mandatory=$true, ValueFromPipeline=$false)]
 	[string]$UserID,
 
@@ -26,11 +38,23 @@ Param(
 	[string]$UserPass
 )
 
-# Calculate the upload destination URL.
-$config = (Get-Content "config.json") -join "`n" | ConvertFrom-Json
+if( [string]::IsNullOrWhiteSpace( $RemoteFilename ) ) {
+	$RemoteFilename = $Filename
+}
+
+if( [string]::IsNullOrWhiteSpace( $LocalDir ) ) {
+	$LocalDir = (Get-Item -Path ".\" -Verbose).FullName
+}
+
+# Calculate the destination URL.
+$configFile = [System.IO.Path]::Combine($PSScriptRoot, "nexus-config.json")
+$config = (Get-Content $configFile) -join "`n" | ConvertFrom-Json
 $remoteUrl = $config.baseUrl.Trim()
 if ( -not $remoteUrl.EndsWith('/') ) { $remoteUrl = $remoteUrl + '/' }
-$remoteUrl = $remoteUrl + $Filename
+$remoteUrl = $remoteUrl + $RemoteFilename
+
+# Calculate the path to upload from.
+$localPath = [System.IO.Path]::Combine($LocalDir, $Filename)
 
 # Create login credential
 $securePassword = ConvertTo-SecureString $UserPass -AsPlainText -Force
@@ -41,10 +65,10 @@ $uploadParams = @{
 	Uri = $remoteUrl;
 	Method = 'PUT';
 	Credential = $credential;
-	InFile = $Filename;
+	InFile = $localPath;
 }
 
 $result = Invoke-RestMethod @uploadParams
 
-Write-Host $result	
+Write-Host $result
 

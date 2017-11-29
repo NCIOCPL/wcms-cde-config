@@ -27,7 +27,7 @@ Param(
 )
 
 # Calculate the upload destination URL.
-$config = (Get-Content "config.json") -join "`n" | ConvertFrom-Json
+$config = (Get-Content "nexus-config.json") -join "`n" | ConvertFrom-Json
 $remoteUrl = $config.baseUrl.Trim()
 if ( -not $remoteUrl.EndsWith('/') ) { $remoteUrl = $remoteUrl + '/' }
 $remoteUrl = $remoteUrl + $Filename
@@ -46,5 +46,5 @@ $uploadParams = @{
 
 $result = Invoke-RestMethod @uploadParams
 
-Write-Host $result	
+Write-Host $result
 
