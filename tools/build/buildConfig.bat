@@ -26,6 +26,8 @@ IF "%WORKSPACE%"=="" set FAIL=True
 IF "%TEMP%"=="" set FAIL=True
 IF "%SUBSTITUTION_FILE%"=="" set FAIL=True
 IF "%BUILD_NUMBER%"=="" set FAIL=True
+IF "%NEXUS_USER%"=="" set FAIL=True
+IF "%NEXUS_PASS%"=="" set FAIL=True
 IF "%GITHUB_TOKEN%"=="" set FAIL=True
 IF "%GH_ORGANIZATION_NAME%"=="" set FAIL=True
 IF "%GH_REPO_NAME%"=="" set FAIL=True
@@ -41,13 +43,15 @@ IF "%FAIL%" NEQ "" (
 	ECHO.
 	ECHO Additonally, the following environment variables must be set:
 	ECHO.
-	ECHO 	WORKSPACE - directory containing the source code.
-	ECHO 	SUBSTITUTION_FILE - file path to the config placeholder substitution file.
-	ECHO 	TEMP - Location for temporary files
-	ECHO  	BUILD_NUMBER - Build number ^(automatically generated/set by Jenkins^)
-	ECHO  	GITHUB_TOKEN - GitHub access token for the build user.
-	ECHO  	GH_ORGANIZATION_NAME - GitHub organization ^(usually NCIOCPL^)
-	ECHO  	GH_REPO_NAME - The specific repository being built.
+	ECHO	WORKSPACE - directory containing the source code.
+	ECHO	SUBSTITUTION_FILE - file path to the config placeholder substitution file.
+	ECHO	TEMP - Location for temporary files
+	ECHO	BUILD_NUMBER - Build number ^(automatically generated/set by Jenkins^)
+	ECHO	NEXUS_USER - Login ID for the Nexus repository.
+	ECHO	NEXUS_PASS - Password for the Nexus repository.
+	ECHO	GITHUB_TOKEN - GitHub access token for the build user.
+	ECHO	GH_ORGANIZATION_NAME - GitHub organization ^(usually NCIOCPL^)
+	ECHO	GH_REPO_NAME - The specific repository being built.
 	ECHO.
 	GOTO :EOF
 )

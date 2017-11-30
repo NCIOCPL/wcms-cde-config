@@ -56,27 +56,28 @@
 	Create a ZIP file containing the build artifacts (configs) and upload it to Nexus repo.
   -->
   <Target Name="Upload" DependsOnTargets="ValidateProps">
+
+      <!-- Create tags in the local repository and on GitHub -->
   	  <Message Text="Creating tag $(BuildName)." />
   	  <Exec Command="git tag $(BuildName) $(COMMIT_ID)" />
   	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
 
+      <!-- Create ZIP file of built configuration files. -->
       <Message Text="Creating $(TempBase)\$(BuildName).zip from $(StagingLocation)" />
       <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\create-zip.ps1 -sourcePath &quot;$(StagingLocation)\*&quot;  -destinationPath &quot;$(TempBase)\$(BuildName).zip&quot;" />
 
-      <Message Text="Uploading $(BuildName).zip to Nexus repository" />
+      <!-- Upload built files to the Nexus repository -->
+      <Message Text="Uploading $(BuildName)-$(COMMIT_ID).zip to Nexus repository" />
+      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\nexus-upload.ps1 -Filename $(BuildName).zip -LocalDir $(TempBase) -RemoteFilename $(BuildName)-$(COMMIT_ID).zip -UserID $(NEXUS_USER) -UserPass $(NEXUS_PASS)" />
 
-  <!-- This should be upload to nexus
-	  <Message Text="Uploading $(BuildName).zip to GitHub" />
-	  <Exec Command="powershell -ExecutionPolicy RemoteSigned -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -artifactDirectory &quot;$(TempBase)&quot; -artifactFileName &quot;$(BuildName).zip&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
-  -->
   </Target>
 
   <!--
 	Clean up after the build is complete.
   -->
   <Target Name="Cleanup">
-	  <!--RemoveDir Directories="$(TempBase)" /-->
-    <Message Text="Would remove $(TempBase)" />
+    <Message Text="Cleaning up $(TempBase)" />
+	  <RemoveDir Directories="$(TempBase)" />
   </Target>
 
   <!--
@@ -113,6 +114,12 @@
 
     <Error Condition=" '$(BUILD_NUMBER)'=='' "
             Text=" Missing required property [BUILD_NUMBER]" />
+
+    <Error Condition=" '$(NEXUS_USER)'=='' "
+            Text=" Missing required property [NEXUS_USER]" />
+
+    <Error Condition=" '$(NEXUS_PASS)'=='' "
+            Text=" Missing required property [NEXUS_PASS]" />
 
     <Error Condition=" '$(SUBSTITUTION_FILE)'=='' "
             Text=" Missing required property [SUBSTITUTION_FILE]" />
