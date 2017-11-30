@@ -40,6 +40,17 @@ Param(
 	[string]$SubstituteList
 )
 
+if (-not (Test-Path $InputFile)) {
+	Write-Error "InputFile, $InputFile, does not exist"
+	exit
+}
+
+if (-not (Test-Path $SubstituteList)) {
+	Write-Error "SubstituteList, $SubstituteList, does not exist"
+	exit
+}
+
+
 [xml]$substitutions = Get-Content $SubstituteList
 [string]$data = Get-Content -Raw $InputFile
 
