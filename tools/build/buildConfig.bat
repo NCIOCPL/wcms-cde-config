@@ -28,6 +28,8 @@ IF "%SUBSTITUTION_FILE%"=="" set FAIL=True
 IF "%BUILD_NUMBER%"=="" set FAIL=True
 IF "%NEXUS_USER%"=="" set FAIL=True
 IF "%NEXUS_PASS%"=="" set FAIL=True
+IF "%CONFIG_COMMIT_ID%"=="" set FAIL=True
+IF "%CDE_COMMIT_ID%"=="" set FAIL=True
 IF "%GITHUB_TOKEN%"=="" set FAIL=True
 IF "%GH_ORGANIZATION_NAME%"=="" set FAIL=True
 IF "%GH_REPO_NAME%"=="" set FAIL=True
@@ -49,6 +51,8 @@ IF "%FAIL%" NEQ "" (
 	ECHO	BUILD_NUMBER - Build number ^(automatically generated/set by Jenkins^)
 	ECHO	NEXUS_USER - Login ID for the Nexus repository.
 	ECHO	NEXUS_PASS - Password for the Nexus repository.
+	ECHO	CONFIG_COMMIT_ID - hash for the version of the config files being built.
+	ECHO	CDE_COMMIT_ID - hash for the CDE build matching this config build.
 	ECHO	GITHUB_TOKEN - GitHub access token for the build user.
 	ECHO	GH_ORGANIZATION_NAME - GitHub organization ^(usually NCIOCPL^)
 	ECHO	GH_REPO_NAME - The specific repository being built.
