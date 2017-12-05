@@ -47,39 +47,37 @@
 		Similar to the build, we want to execute the ConfigTransform target multiple times, with varying
 		combinations of CDE sites, environments, and preview/live.
 	-->
-	
+
     <Exec Command="for %%a in ($(CDE_Site_List)) do for %%b in ($(Config_Environment_List)) do for %%c in ($(Config_Site_List)) do msbuild buildConfigInner.xml /nologo /t:ConfigTransform &quot;/p:CDE_Site=%%a;ENVIRON=%%b;SITE=%%c;ConfigFileLocation=$(ConfigFileLocation);SourceLocation=$(SourceLocation);Revision=$(Revision);TargetEnvironment=$(TargetEnvironment);Branch=$(Branch);SubstitutionList=$(SUBSTITUTION_FILE)&quot;" />
-	
+
   </Target>
 
   <!--
 	Create a ZIP file containing the build artifacts (configs) and upload it to Nexus repo.
   -->
   <Target Name="Upload" DependsOnTargets="ValidateProps">
+
+      <!-- Create tags in the local repository and on GitHub -->
   	  <Message Text="Creating tag $(BuildName)." />
-  	  <Exec Command="git tag $(BuildName) $(COMMIT_ID)" />
+  	  <Exec Command="git tag $(BuildName) $(CONFIG_COMMIT_ID)" />
+  	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(CONFIG_COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
 
-  <!-- 
-	  <Message Text="Copying deployment scripts" />
-	  <Copy	SourceFiles="$(SourceLocation)\tools\build\resources\cdeDeploy.bat"		DestinationFolder="$(StagingLocation)"		OverwriteReadOnlyFiles="true" />
-	  <Copy	SourceFiles="$(SourceLocation)\tools\build\resources\cdeDeploy.ps1"		DestinationFolder="$(StagingLocation)"		OverwriteReadOnlyFiles="true" />
-	  <Copy	SourceFiles="$(SourceLocation)\tools\build\resources\cdeBackup.ps1"		DestinationFolder="$(StagingLocation)"		OverwriteReadOnlyFiles="true" />
+      <!-- Create ZIP file of built configuration files. -->
+      <Message Text="Creating $(TempBase)\$(BuildName).zip from $(StagingLocation)" />
+      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\create-zip.ps1 -sourcePath &quot;$(StagingLocation)\*&quot;  -destinationPath &quot;$(TempBase)\$(BuildName).zip&quot;" />
 
-	  <Message Text="Creating $(TempBase)\$(BuildName).zip from $(StagingLocation)" />
-	  <Exec Command="powershell -ExecutionPolicy RemoteSigned -NonInteractive scripts\create-zip.ps1 -sourcePath &quot;$(StagingLocation)\*&quot;  -destinationPath &quot;$(TempBase)\$(BuildName).zip&quot;" />
-  -->
-  <!-- This should be upload to nexus    
-	  <Message Text="Uploading $(BuildName).zip to GitHub" />
-	  <Exec Command="powershell -ExecutionPolicy RemoteSigned -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -artifactDirectory &quot;$(TempBase)&quot; -artifactFileName &quot;$(BuildName).zip&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
-  -->
+      <!-- Upload built files to the Nexus repository -->
+      <Message Text="Uploading $(BuildName)-$(CDE_COMMIT_ID).zip to Nexus repository" />
+      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\nexus-upload.ps1 -Filename $(BuildName).zip -LocalDir $(TempBase) -RemoteFilename $(BuildName)-$(CDE_COMMIT_ID).zip -UserID $(NEXUS_USER) -UserPass $(NEXUS_PASS)" />
+
   </Target>
 
   <!--
 	Clean up after the build is complete.
   -->
   <Target Name="Cleanup">
-	  <!--RemoveDir Directories="$(TempBase)" /-->
-    <Message Text="Would remove $(TempBase)" />
+    <Message Text="Cleaning up $(TempBase)" />
+	  <RemoveDir Directories="$(TempBase)" />
   </Target>
 
   <!--
@@ -102,23 +100,38 @@
 
   <!-- This target validates properties that are expected to be passed into msbuild -->
   <Target Name="ValidateProps">
-	<Error Condition=" '$(TargetEnvironment)'=='' "
-          Text=" Missing required property [TargetEnvironment]" />
+    <Error Condition=" '$(TargetEnvironment)'=='' "
+            Text=" Missing required property [TargetEnvironment]" />
 
-	<Error Condition=" '$(Branch)'=='' "
-          Text=" Missing required property [Branch]" />
+    <Error Condition=" '$(Branch)'=='' "
+            Text=" Missing required property [Branch]" />
 
-	<Error Condition=" '$(COMMIT_ID)'=='' "
-          Text=" Missing required property [COMMIT_ID]" />
+    <Error Condition=" '$(CDE_COMMIT_ID)'=='' "
+            Text=" Missing required property [CDE_COMMIT_ID]" />
 
-	<Error Condition=" '$(GITHUB_TOKEN)'=='' "
-          Text=" Missing required property [GITHUB_TOKEN]" />
+    <Error Condition=" '$(CONFIG_COMMIT_ID)'=='' "
+            Text=" Missing required property [CONFIG_COMMIT_ID]" />
 
-	<Error Condition=" '$(BUILD_NUMBER)'=='' "
-          Text=" Missing required property [BUILD_NUMBER]" />
-          
-	<Error Condition=" '$(SUBSTITUTION_FILE)'=='' "
-          Text=" Missing required property [SUBSTITUTION_FILE]" />
+    <Error Condition=" '$(GITHUB_TOKEN)'=='' "
+            Text=" Missing required property [GITHUB_TOKEN]" />
+
+    <Error Condition=" '$(BUILD_NUMBER)'=='' "
+            Text=" Missing required property [BUILD_NUMBER]" />
+
+    <Error Condition=" '$(NEXUS_USER)'=='' "
+            Text=" Missing required property [NEXUS_USER]" />
+
+    <Error Condition=" '$(NEXUS_PASS)'=='' "
+            Text=" Missing required property [NEXUS_PASS]" />
+
+    <Error Condition=" '$(SUBSTITUTION_FILE)'=='' "
+            Text=" Missing required property [SUBSTITUTION_FILE]" />
+
+    <Error Condition=" '$(GH_ORGANIZATION_NAME)'=='' "
+            Text=" Missing required property [GH_ORGANIZATION_NAME]" />
+
+    <Error Condition=" '$(GH_REPO_NAME)'=='' "
+            Text=" Missing required property [GH_REPO_NAME]" />
 
   <!-- We need some sort of Nexus token/login -->
 
@@ -149,7 +162,7 @@
     <Message Text="                BuildEnvironment - The system being used for the build." />
     <Message Text="                BranchName - The branch being built." />
 	<Message Text=" " />
-    <Message Text="            The WORKSPACE,TEMP,COMMIT_ID,GITHUB_TOKEN,SUBSTITUTION_FILE and BUILD_NUMBER environment variables must also be set." />
+    <Message Text="            The WORKSPACE,TEMP,CDE_COMMIT_ID,CONFIG_COMMIT_ID,GITHUB_TOKEN,SUBSTITUTION_FILE and BUILD_NUMBER environment variables must also be set." />
     <Message Text=" " />
   </Target>
 
