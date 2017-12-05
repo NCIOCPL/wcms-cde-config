@@ -71,4 +71,3 @@ $uploadParams = @{
 $result = Invoke-RestMethod @uploadParams
 
 Write-Host $result
-
