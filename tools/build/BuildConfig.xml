@@ -24,7 +24,7 @@
   <PropertyGroup>
     <SourceLocation>$(Workspace)</SourceLocation>
 
-	  <TempBase>$(TEMP)\Build-$(BUILD_NUMBER)</TempBase>
+	  <TempBase>$(TEMP)\Build-$(BUILD_NUMBER)-config</TempBase>
 	  <OutputFolder>$(TempBase)\output\</OutputFolder>
     <StagingLocation>$(TempBase)\staging</StagingLocation>
 	  <ConfigFileLocation>$(StagingLocation)\_configFiles</ConfigFileLocation>
