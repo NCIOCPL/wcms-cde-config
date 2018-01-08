@@ -26,7 +26,7 @@
 
 	  <TempBase>$(TEMP)\Build-$(BUILD_NUMBER)</TempBase>
 	  <OutputFolder>$(TempBase)\output\</OutputFolder>
-    <StagingLocation>$(TempBase)\staging</StagingLocation>
+	  <StagingLocation>$(TempBase)\staging</StagingLocation>
 	  <ConfigFileLocation>$(StagingLocation)\_configFiles</ConfigFileLocation>
 
 	  <BuildName>$(branch)-$(TargetEnvironment)-$(BUILD_NUMBER)</BuildName>
@@ -61,6 +61,16 @@
   	  <Message Text="Creating tag $(BuildName)." />
   	  <Exec Command="git tag $(BuildName) $(COMMIT_ID)" />
   	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
+
+	  <!-- Gather deployment script -->
+	  <Copy
+	      SourceFiles="resources\cdeConfigDeploy.ps1"
+		  DestinationFolder="$(StagingLocation)"
+	  />
+	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\nexus-download.ps1 -filename cdeConfigDeploy.txt -Destination &quot;$(StagingLocation)&quot; -UserID $(NEXUS_USER) -UserPass $(NEXUS_PASS)" />
+	  <Move SourceFiles="$(StagingLocation)\cdeConfigDeploy.txt"
+			DestinationFiles="$(StagingLocation)\cdeConfigDeploy.bat"
+	  />
 
       <!-- Create ZIP file of built configuration files. -->
       <Message Text="Creating $(TempBase)\$(BuildName).zip from $(StagingLocation)" />
