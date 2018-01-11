@@ -68,6 +68,13 @@ $uploadParams = @{
 	InFile = $localPath;
 }
 
-$result = Invoke-RestMethod @uploadParams
+Try {
+	$result = Invoke-RestMethod @uploadParams
+}
+Catch {
+	# Explicitly exit with an error.
+	Write-Error "An error has occured.`n$_"
+	Exit 1
+}
 
 Write-Host $result
