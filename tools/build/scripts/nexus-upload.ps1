@@ -70,11 +70,12 @@ $uploadParams = @{
 
 Try {
 	$result = Invoke-RestMethod @uploadParams
+
+	Write-Host $result
 }
 Catch {
 	# Explicitly exit with an error.
-	Write-Error "An error has occured.`n$_"
+	Write-Host "An error has occured.`n$_"
+
 	Exit 1
 }
-
-Write-Host $result
