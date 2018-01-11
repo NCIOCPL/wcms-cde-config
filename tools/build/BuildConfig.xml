@@ -68,9 +68,10 @@
 		  DestinationFolder="$(StagingLocation)"
 	  />
 	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\nexus-download.ps1 -filename cdeConfigDeploy.txt -Destination &quot;$(StagingLocation)&quot; -UserID $(NEXUS_USER) -UserPass $(NEXUS_PASS)" />
-	  <Move SourceFiles="$(StagingLocation)\cdeConfigDeploy.txt"
+	  <Copy SourceFiles="$(StagingLocation)\cdeConfigDeploy.txt"
 			DestinationFiles="$(StagingLocation)\cdeConfigDeploy.bat"
 	  />
+	  <Delete Files="$(StagingLocation)\cdeConfigDeploy.txt" />
 
       <!-- Create ZIP file of built configuration files. -->
       <Message Text="Creating $(TempBase)\$(BuildName).zip from $(StagingLocation)" />
