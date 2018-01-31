@@ -24,7 +24,7 @@
   <PropertyGroup>
     <SourceLocation>$(Workspace)</SourceLocation>
 
-	  <TempBase>$(TEMP)\Build-$(BUILD_NUMBER)</TempBase>
+	  <TempBase>$(TEMP)\Build-$(BUILD_NUMBER)-config</TempBase>
 	  <OutputFolder>$(TempBase)\output\</OutputFolder>
     <StagingLocation>$(TempBase)\staging</StagingLocation>
 	  <ConfigFileLocation>$(StagingLocation)\_configFiles</ConfigFileLocation>
@@ -59,16 +59,16 @@
 
       <!-- Create tags in the local repository and on GitHub -->
   	  <Message Text="Creating tag $(BuildName)." />
-  	  <Exec Command="git tag $(BuildName) $(COMMIT_ID)" />
-  	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
+  	  <Exec Command="git tag $(BuildName) $(CONFIG_COMMIT_ID)" />
+  	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(CONFIG_COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
 
       <!-- Create ZIP file of built configuration files. -->
       <Message Text="Creating $(TempBase)\$(BuildName).zip from $(StagingLocation)" />
       <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\create-zip.ps1 -sourcePath &quot;$(StagingLocation)\*&quot;  -destinationPath &quot;$(TempBase)\$(BuildName).zip&quot;" />
 
       <!-- Upload built files to the Nexus repository -->
-      <Message Text="Uploading $(BuildName)-$(COMMIT_ID).zip to Nexus repository" />
-      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\nexus-upload.ps1 -Filename $(BuildName).zip -LocalDir $(TempBase) -RemoteFilename $(BuildName)-$(COMMIT_ID).zip -UserID $(NEXUS_USER) -UserPass $(NEXUS_PASS)" />
+      <Message Text="Uploading $(BuildName)-$(CDE_COMMIT_ID).zip to Nexus repository" />
+      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\nexus-upload.ps1 -Filename $(BuildName).zip -LocalDir $(TempBase) -RemoteFilename $(BuildName)-$(CDE_COMMIT_ID).zip -UserID $(NEXUS_USER) -UserPass $(NEXUS_PASS)" />
 
   </Target>
 
@@ -106,8 +106,11 @@
     <Error Condition=" '$(Branch)'=='' "
             Text=" Missing required property [Branch]" />
 
-    <Error Condition=" '$(COMMIT_ID)'=='' "
-            Text=" Missing required property [COMMIT_ID]" />
+    <Error Condition=" '$(CDE_COMMIT_ID)'=='' "
+            Text=" Missing required property [CDE_COMMIT_ID]" />
+
+    <Error Condition=" '$(CONFIG_COMMIT_ID)'=='' "
+            Text=" Missing required property [CONFIG_COMMIT_ID]" />
 
     <Error Condition=" '$(GITHUB_TOKEN)'=='' "
             Text=" Missing required property [GITHUB_TOKEN]" />
@@ -159,7 +162,7 @@
     <Message Text="                BuildEnvironment - The system being used for the build." />
     <Message Text="                BranchName - The branch being built." />
 	<Message Text=" " />
-    <Message Text="            The WORKSPACE,TEMP,COMMIT_ID,GITHUB_TOKEN,SUBSTITUTION_FILE and BUILD_NUMBER environment variables must also be set." />
+    <Message Text="            The WORKSPACE,TEMP,CDE_COMMIT_ID,CONFIG_COMMIT_ID,GITHUB_TOKEN,SUBSTITUTION_FILE and BUILD_NUMBER environment variables must also be set." />
     <Message Text=" " />
   </Target>
 

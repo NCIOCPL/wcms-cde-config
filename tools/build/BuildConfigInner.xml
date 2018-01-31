@@ -38,7 +38,7 @@
 
     <!-- replace sensative placeholders -->
   	<Message Text="Replacing Placeholders for $(ConfigFileLocation)\$(ENVIRON)\$(CDE_Site)\$(SITE)\code\Web.config" />
-	  <Exec Command="powershell -ExecutionPolicy RemoteSigned -NonInteractive scripts\substitution.ps1 -InputFile &quot;$(ConfigFileLocation)\$(ENVIRON)\$(CDE_Site)\$(SITE)\code\Web.config.tmp&quot; -OutputFile &quot;$(ConfigFileLocation)\$(ENVIRON)\$(CDE_Site)\$(SITE)\code\Web.config&quot; -SubstituteList &quot;$(SubstitutionList)&quot;" />
+	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\substitution.ps1 -InputFile '$(ConfigFileLocation)\$(ENVIRON)\$(CDE_Site)\$(SITE)\code\Web.config.tmp' -OutputFile '$(ConfigFileLocation)\$(ENVIRON)\$(CDE_Site)\$(SITE)\code\Web.config' -SubstituteList '$(SubstitutionList)'" />
 
     <!-- Remove the tmp file -->
     <Delete Files="$(ConfigFileLocation)\$(ENVIRON)\$(CDE_Site)\$(SITE)\code\Web.config.tmp" />
