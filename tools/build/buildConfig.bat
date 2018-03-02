@@ -34,19 +34,6 @@ IF "%GITHUB_TOKEN%"=="" set FAIL=True
 IF "%GH_ORGANIZATION_NAME%"=="" set FAIL=True
 IF "%GH_REPO_NAME%"=="" set FAIL=True
 
-echo WORKSPACE	 			%WORKSPACE%
-echo SUBSTITUTION_FILE		%SUBSTITUTION_FILE%
-echo TEMP	 				%TEMP%
-echo BUILD_NUMBER	 		%BUILD_NUMBER%
-echo NEXUS_USER	 			%NEXUS_USER%
-echo NEXUS_PASS	 			%NEXUS_PASS%
-echo CONFIG_COMMIT_ID		%CONFIG_COMMIT_ID%
-echo CDE_COMMIT_ID	 		%CDE_COMMIT_ID%
-echo GITHUB_TOKEN			%GITHUB_TOKEN%
-echo GH_ORGANIZATION_NAME	%GH_ORGANIZATION_NAME%
-echo GH_REPO_NAME			%GH_REPO_NAME%
-
-
 IF "%FAIL%" NEQ "" (
 	ECHO.
 	ECHO You must pass the branch and build environment names to this script.
