@@ -50,6 +50,9 @@
 
     <Exec Command="for %%a in ($(CDE_Site_List)) do for %%b in ($(Config_Environment_List)) do for %%c in ($(Config_Site_List)) do msbuild buildConfigInner.xml /nologo /t:ConfigTransform &quot;/p:CDE_Site=%%a;ENVIRON=%%b;SITE=%%c;ConfigFileLocation=$(ConfigFileLocation);SourceLocation=$(SourceLocation);Revision=$(Revision);TargetEnvironment=$(TargetEnvironment);Branch=$(Branch);SubstitutionList=$(SUBSTITUTION_FILE)&quot;" />
 
+    <Copy	SourceFiles="resources\configDeploy.bat"		DestinationFolder="$(StagingLocation)"		OverwriteReadOnlyFiles="true" />
+  	<Copy	SourceFiles="resources\configDeploy.ps1"		DestinationFolder="$(StagingLocation)"		OverwriteReadOnlyFiles="true" />
+
   </Target>
 
   <!--
