@@ -31,4 +31,4 @@ IF "%TARGET:~0,9%"=="WCMS-Prod" (
 	GOTO :EOF
 )
 
-powershell -ExecutionPolicy RemoteSigned %batpath%configDeploy.ps1 -source %batpath% -env %TARGET%
+powershell -ExecutionPolicy BYPASS /c "& '%batpath%configDeploy.ps1' -source '%batpath%' -env %TARGET%"
