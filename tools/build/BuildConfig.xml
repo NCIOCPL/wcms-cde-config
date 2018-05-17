@@ -29,7 +29,7 @@
     <StagingLocation>$(TempBase)\staging</StagingLocation>
 	  <ConfigFileLocation>$(StagingLocation)\_configFiles</ConfigFileLocation>
 
-	  <BuildName>$(branch)-$(TargetEnvironment)-$(BUILD_NUMBER)</BuildName>
+	  <BuildName>cde-$([System.DateTime]::Now.ToString(yyyy-MM-dd))-$(branch)-$(TargetEnvironment)-$(BUILD_NUMBER)</BuildName>
   </PropertyGroup>
 
 
@@ -50,6 +50,9 @@
 
     <Exec Command="for %%a in ($(CDE_Site_List)) do for %%b in ($(Config_Environment_List)) do for %%c in ($(Config_Site_List)) do msbuild buildConfigInner.xml /nologo /t:ConfigTransform &quot;/p:CDE_Site=%%a;ENVIRON=%%b;SITE=%%c;ConfigFileLocation=$(ConfigFileLocation);SourceLocation=$(SourceLocation);Revision=$(Revision);TargetEnvironment=$(TargetEnvironment);Branch=$(Branch);SubstitutionList=$(SUBSTITUTION_FILE)&quot;" />
 
+    <Copy	SourceFiles="resources\configDeploy.bat"		DestinationFolder="$(StagingLocation)"		OverwriteReadOnlyFiles="true" />
+  	<Copy	SourceFiles="resources\configDeploy.ps1"		DestinationFolder="$(StagingLocation)"		OverwriteReadOnlyFiles="true" />
+
   </Target>
 
   <!--
@@ -60,15 +63,15 @@
       <!-- Create tags in the local repository and on GitHub -->
   	  <Message Text="Creating tag $(BuildName)." />
   	  <Exec Command="git tag $(BuildName) $(CONFIG_COMMIT_ID)" />
-  	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(CONFIG_COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
+  	  <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive build-tools\github-tools\github-release.ps1 -tagname $(BuildName) -releaseName $(BuildName) -commitId $(CONFIG_COMMIT_ID) -IsPreRelease -releaseNotes \&quot;Automated build $(BuildName)\&quot; -gitHubUsername $(GH_ORGANIZATION_NAME) -gitHubRepository $(GH_REPO_NAME)" />
 
       <!-- Create ZIP file of built configuration files. -->
       <Message Text="Creating $(TempBase)\$(BuildName).zip from $(StagingLocation)" />
-      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\create-zip.ps1 -sourcePath &quot;$(StagingLocation)\*&quot;  -destinationPath &quot;$(TempBase)\$(BuildName).zip&quot;" />
+      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive build-tools\zip-tools\create-zip.ps1 -sourcePath &quot;$(StagingLocation)\*&quot;  -destinationPath &quot;$(TempBase)\$(BuildName).zip&quot;" />
 
       <!-- Upload built files to the Nexus repository -->
       <Message Text="Uploading $(BuildName)-$(CDE_COMMIT_ID).zip to Nexus repository" />
-      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive scripts\nexus-upload.ps1 -Filename $(BuildName).zip -LocalDir $(TempBase) -RemoteFilename $(BuildName)-$(CDE_COMMIT_ID).zip -UserID $(NEXUS_USER) -UserPass $(NEXUS_PASS)" />
+      <Exec Command="powershell -ExecutionPolicy Unrestricted -NonInteractive build-tools\nexus-tools\nexus-upload.ps1 -Filename $(BuildName).zip -LocalDir $(TempBase) -RemoteFilename $(BuildName)-$(CDE_COMMIT_ID).zip -UserID $(NEXUS_USER) -UserPass $(NEXUS_PASS)" />
 
   </Target>
 
