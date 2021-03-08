@@ -5,8 +5,20 @@ rem Get paths into variables
 rem Batpath gets the path to this bat file.
 set batpath=%~dp0
 
+IF /i "%COMPUTERNAME%"=="NCIWS-D138-V" (
+	set TARGET=WCMS-Blue
+) ELSE IF /i "%COMPUTERNAME%"=="NCIWS-Q178-V" (
+	set TARGET=WCMS-QA
+) ELSE IF /i "%COMPUTERNAME%"=="NCIAS-S1058-V" (
+	set TARGET=WCMS-Stage
+) ELSE IF /i "%COMPUTERNAME%"=="NCIAS-P991-V" (
+	set TARGET=WCMS-Prod
+) ELSE IF /i "%COMPUTERNAME%"=="NCIAS-P2086-C" (
+	set TARGET=WCMS-Colo
+)
+
+
 REM Determine the Environment Name.
-set TARGET=%1
 
 IF "%TARGET:~0,9%"=="WCMS-Prod" (
 	set TARGET=Prod
