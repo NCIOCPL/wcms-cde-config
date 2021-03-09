@@ -5,8 +5,9 @@ rem Get paths into variables
 rem Batpath gets the path to this bat file.
 set batpath=%~dp0
 
+
+
 REM Determine the Environment Name.
-set TARGET=%1
 
 IF "%TARGET:~0,9%"=="WCMS-Prod" (
 	set TARGET=Prod
