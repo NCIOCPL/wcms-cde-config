@@ -32,4 +32,11 @@ IF "%TARGET:~0,9%"=="WCMS-Prod" (
 	GOTO :EOF
 )
 
+rem Do a backup
+powershell -ExecutionPolicy BYPASS -FILE "%batpath%configBackup.ps1" -env %my_target%
+if errorlevel 1 (
+	echo An error has occured.
+	exit /b 1
+)
+
 powershell -ExecutionPolicy BYPASS /c "& '%batpath%configDeploy.ps1' -source '%batpath%' -env %TARGET%"
